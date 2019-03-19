@@ -1,9 +1,10 @@
 var round = 16;
-var sheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + round);
 var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
+var sheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + round);
+var forcastNum = Math.floor(getDirect(3, 2))
+var sheet_data;
 
 function randomForecast16() {
-  var forcastNum = Math.floor(getData(3, 2));
   var games = [
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
@@ -25,46 +26,49 @@ function randomForecast16() {
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
   var forcasts = [];
-  
+
   //フォームの入力を転記
   var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 2, 1, round).getValues();
   sheet.getRange(3, 3, 1, 16).setValues(formForcasts);
   
-  
+  //フォームを転記した後にシートデータ取得
+  sheet_data = sheet.getRange(1, 1, forcastNum + 4, round + 2).getValues();
+
+
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
     Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternsNum + ')',Browser.Buttons.OK);
     return;
   }
-  
+
   var lastRow = sheet.getLastRow()
   if(lastRow > 4){
-    sheet.getRange(5, 2, sheet.getLastRow() - 4, sheet.getLastColumn() - 1).setValue('');
+    sheet.getRange(5, 2, lastRow - 4, sheet.getLastColumn() - 1).setValue('');
   }
-  
+
   for(var i = 0; i < games.length; i ++){
     var winRate = getData(3, 3 + i);
 
-    if(winRate >= 0 && winRate <= 1 && winRate !== ''){   
+    if(winRate >= 0 && winRate <= 1 && winRate !== ''){
       winRates.push(winRate);
     }else{
       Browser.msgBox('予想勝率に正しい値を入力してください(半角数字0~1)',Browser.Buttons.OK);
       return;
     }
   }
-  
+
   games.forEach(function(game, index){
     setData(4, 3 + index, game[0] + ' - ' + game[1]);
   });
-  
+
   for(var i = 0; i < forcastNum; i++){
     setData(5 + i, 2, i + 1);
     var binForcast = '';
-    
+
     while(true){
       binForcast = '';
       var contFlag = false;
       var decForcast;
-      
+
       for(var j = 0; j < games.length; j++){
         var rnd = Math.random();
         if(rnd <= winRates[j]){
@@ -73,40 +77,44 @@ function randomForecast16() {
           binForcast += '1';
         }
       }
-      
+
       decForcast = parseInt(binForcast, 2);
       for(var j = 0; j < i; j++){
-        if(forcasts[j] == decForcast){
+        if(forcasts[j] < decForcast){
+          continue;
+        }else if(forcasts[j] == decForcast){
           contFlag = true;
+          break;
+        }else if(forcasts[j] > decForcast){
+          forcasts.(j, 0, decForcast);
           break;
         }
       }
-      
+
       if(contFlag){
         continue;
       }else{
-        forcasts.push(decForcast);
         break;
       }
-      
     }
-    
+
     for(var j = 0; j < games.length; j++){
       setData(5 + i, 3 + j, games[j][binForcast.substr(j, 1)]);
     }
   }
   
-
-  
+  sheet.getRange(1, 1, forcastNum + 4, round + 2).setValues(sheet_data);
 }
 
 function getData(y,x){
+  return sheet_data[y-1][x-1];
+}
+
+function getDirect(y,x){
   var range = sheet.getRange(y, x);
   return range.getValue();
 }
 
-
 function setData(y,x,data){
-  var range = sheet.getRange(y, x);
-  range.setValue(data);
+  sheet_data[y - 1][x - 1] = data;
 }
