@@ -1,11 +1,11 @@
-var round = 16;
 var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
-var sheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + round);
-var forcastNum = Math.floor(getDirect(3, 2))
+var name = watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
+var sheet = SpreadsheetApp.getActive().getSheetByName(name);
 var sheet_data;
 
-function randomForecast16() {
-  var games = [
+function randomForecast() {
+  var round = 16;
+  var games = [ //roundと同じ配列数である必要がある 
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
     ['履正社', '星稜'],
@@ -26,13 +26,14 @@ function randomForecast16() {
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
   var forcasts = [];
+  var forcastNum = Math.floor(getDirect(3, 2))
 
   //フォームの入力を転記
-  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 2, 1, round).getValues();
-  sheet.getRange(3, 3, 1, 16).setValues(formForcasts);
+  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, round).getValues();
+  sheet.getRange(3, 3, 1, round).setValues(formForcasts);
   
   //フォームを転記した後にシートデータ取得
-  sheet_data = sheet.getRange(1, 1, forcastNum + 4, round + 2).getValues();
+  sheet_data = sheet.getRange(1, 1, forcastNum + 5, round + 2).getValues();
 
 
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
@@ -42,7 +43,7 @@ function randomForecast16() {
 
   var lastRow = sheet.getLastRow()
   if(lastRow > 4){
-    sheet.getRange(5, 2, lastRow - 4, sheet.getLastColumn() - 1).setValue('');
+    sheet.getRange(6, 2, lastRow - 5, sheet.getLastColumn() - 1).setValue('');
   }
 
   for(var i = 0; i < games.length; i ++){
@@ -61,7 +62,7 @@ function randomForecast16() {
   });
 
   for(var i = 0; i < forcastNum; i++){
-    setData(5 + i, 2, i + 1);
+    setData(6 + i, 2, i + 1);
     var binForcast = '';
 
     while(true){
@@ -99,11 +100,11 @@ function randomForecast16() {
     }
 
     for(var j = 0; j < games.length; j++){
-      setData(5 + i, 3 + j, games[j][binForcast.substr(j, 1)]);
+      setData(6 + i, 3 + j, games[j][binForcast.substr(j, 1)]);
     }
   }
   
-  sheet.getRange(1, 1, forcastNum + 4, round + 2).setValues(sheet_data);
+  sheet.getRange(1, 1, forcastNum + 5, round + 2).setValues(sheet_data);
 }
 
 function getData(y,x){
