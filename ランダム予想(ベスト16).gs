@@ -4,7 +4,7 @@ var sheet = SpreadsheetApp.getActive().getSheetByName(name);
 var sheet_data;
 
 function randomForecast() {
-  var round = 16;
+  var round = 8;
   var games = [ //roundと同じ配列数である必要がある 
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
@@ -13,41 +13,32 @@ function randomForecast() {
     ['明豊', '横浜'],
     ['米子東', '札幌大谷'],
     ['津田学園', '龍谷大平安'],
-    ['盛岡大付', '石岡一'],
-    ['山梨学院', '札幌第一'],
-    ['筑陽学園', '福知山成美'],
-    ['広陵', '八戸学院光星'],
-    ['富岡西', '東邦'],
-    ['明石商', '国士舘'],
-    ['松山聖陵', '大分'],
-    ['啓新', '桐蔭学園'],
-    ['熊本西', '智弁和歌山']
+    ['盛岡大付', '石岡一']
   ];
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
   var forcasts = [];
   var forcastNum = Math.floor(getDirect(3, 2))
+  sheet_data = sheet.getRange(6, 2, forcastNum, round + 1).getValues()
 
-  //フォームの入力を転記
+  //フォームの入力を転記(直接)
   var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, round).getValues();
-  sheet.getRange(3, 3, 1, round).setValues(formForcasts);
-  
-  //フォームを転記した後にシートデータ取得
-  sheet_data = sheet.getRange(1, 1, forcastNum + 5, round + 2).getValues();
 
-
+  //予想数がレンジ内かチェック(0or1の数は未考慮)
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
     Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternsNum + ')',Browser.Buttons.OK);
     return;
   }
 
+  //シートクリア(直接)
   var lastRow = sheet.getLastRow()
-  if(lastRow > 4){
+  if(lastRow > 5){
     sheet.getRange(6, 2, lastRow - 5, sheet.getLastColumn() - 1).setValue('');
   }
 
+  //勝率取得
   for(var i = 0; i < games.length; i ++){
-    var winRate = getData(3, 3 + i);
+    var winRate = getDirect(3, 3 + i);
 
     if(winRate >= 0 && winRate <= 1 && winRate !== ''){
       winRates.push(winRate);
@@ -57,12 +48,14 @@ function randomForecast() {
     }
   }
 
+  //対戦高入力(直接)
   games.forEach(function(game, index){
-    setData(4, 3 + index, game[0] + ' - ' + game[1]);
+    setDirect(4, 3 + index, game[0] + ' - ' + game[1]);
   });
 
+  //項番と予想入力(データに)
   for(var i = 0; i < forcastNum; i++){
-    setData(6 + i, 2, i + 1);
+    setData(1 + i, 1, i + 1);
     var binForcast = '';
 
     while(true){
@@ -100,11 +93,11 @@ function randomForecast() {
     }
 
     for(var j = 0; j < games.length; j++){
-      setData(6 + i, 3 + j, games[j][binForcast.substr(j, 1)]);
+      setData(1+ i, 2 + j, games[j][binForcast.substr(j, 1)]);
     }
   }
   
-  sheet.getRange(1, 1, forcastNum + 5, round + 2).setValues(sheet_data);
+  sheet.getRange(6, 2, forcastNum, round + 1).setValues(sheet_data);
 }
 
 function getData(y,x){
@@ -118,4 +111,9 @@ function getDirect(y,x){
 
 function setData(y,x,data){
   sheet_data[y - 1][x - 1] = data;
+}
+
+function setDirect(y,x,data){
+  var range = sheet.getRange(y, x);
+  range.setValue(data);
 }
