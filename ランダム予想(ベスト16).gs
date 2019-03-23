@@ -23,6 +23,7 @@ function randomForecast() {
 
   //フォームの入力を転記(直接)
   var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, round).getValues();
+  sheet.getRange(3, 3, 1, round).setValues(formForcasts);
 
   //予想数がレンジ内かチェック(0or1の数は未考慮)
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
