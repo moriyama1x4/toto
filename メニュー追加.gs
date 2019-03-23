@@ -3,7 +3,7 @@ function onOpen() {
   var entries = [
     {
       name : "ランダム予想",
-      functionName : "randomForecast16"
+      functionName : "randomForecast"
     }
   ];
   sheet.addMenu("プログラム", entries);
