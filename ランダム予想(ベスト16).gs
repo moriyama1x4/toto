@@ -4,16 +4,12 @@ var sheet = SpreadsheetApp.getActive().getSheetByName(name);
 var sheet_data;
 
 function randomForecast() {
-  var round = 8;
+  var round = 4;
   var games = [ //roundと同じ配列数である必要がある 
-    ['呉', '市和歌山'],
-    ['高松商', '春日部共栄'],
-    ['履正社', '星稜'],
-    ['日章学園', '習志野'],
-    ['明豊', '横浜'],
-    ['米子東', '札幌大谷'],
-    ['津田学園', '龍谷大平安'],
-    ['盛岡大付', '石岡一']
+    ['市和歌山', '高松商'],
+    ['星稜', '習志野'],
+    ['明石商', '松山星陵'],
+    ['桐蔭学園', '(熊本西or智弁和歌山)']
   ];
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
@@ -74,14 +70,14 @@ function randomForecast() {
       }
 
       decForcast = parseInt(binForcast, 2);
-      for(var j = 0; j < i; j++){
+      for(var j = 0; j <= i; j++){
         if(forcasts[j] < decForcast){
           continue;
         }else if(forcasts[j] == decForcast){
           contFlag = true;
           break;
-        }else if(forcasts[j] > decForcast){
-          forcasts.(j, 0, decForcast);
+        }else if(forcasts[j] > decForcast || j ==　i){
+          forcasts.splice(j, 0, decForcast);
           break;
         }
       }
