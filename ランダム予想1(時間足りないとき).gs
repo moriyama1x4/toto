@@ -1,36 +1,38 @@
-var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
-var name = watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
-var sheet = SpreadsheetApp.getActive().getSheetByName(name);
-var sheet_data;
+var watchSheet1 = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
+var name = watchSheet1.getRange(watchSheet1.getLastRow(), 2).getValue();
+var sheet1 = SpreadsheetApp.getActive().getSheetByName(name);
+var sheet_data1;
 
-function randomForecast() {
-  var round = 4;
-  var games = [ //roundと同じ配列数である必要がある 
-    ['市和歌山', '高松商'],
-    ['星稜', '習志野'],
-    ['明石商', '松山星陵'],
-    ['桐蔭学園', '(熊本西or智弁和歌山)']
+function randomForecastPart1() {
+  var round = 16;
+    var games = [ //roundと同じ配列数である必要がある 
+    ['呉', '市和歌山'],
+    ['高松商', '春日部共栄'],
+    ['履正社', '星稜'],
+    ['日章学園', '習志野'],
+    ['明豊', '横浜'],
+    ['米子東', '札幌大谷'],
+    ['津田学園', '龍谷大平安'],
+    ['盛岡大付', '石岡一'],
+    ['山梨学院', '札幌第一'],
+    ['筑陽学園', '福知山成美'],
+    ['広陵', '八戸学院光星'],
+    ['富岡西', '東邦'],
+    ['明石商', '国士舘'],
+    ['松山聖陵', '大分'],
+    ['啓新', '桐蔭学園'],
+    ['熊本西', '智弁和歌山']
   ];
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
-  var forcasts = [];
+  var forcasts = SpreadsheetApp.getActive().getSheetByName("シート4").getRange(5, 1).getValue().split(",");
+  var defForcastsLength = forcasts.length;
   var forcastNum = Math.floor(getDirect(3, 2))
-  sheet_data = sheet.getRange(6, 2, forcastNum, round + 1).getValues()
-
-  //フォームの入力を転記(直接)
-  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, round).getValues();
-  sheet.getRange(3, 3, 1, round).setValues(formForcasts);
 
   //予想数がレンジ内かチェック(0or1の数は未考慮)
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
     Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternsNum + ')',Browser.Buttons.OK);
     return;
-  }
-
-  //シートクリア(直接)
-  var lastRow = sheet.getLastRow()
-  if(lastRow > 5){
-    sheet.getRange(6, 2, lastRow - 5, sheet.getLastColumn() - 1).setValue('');
   }
 
   //勝率取得
@@ -45,14 +47,8 @@ function randomForecast() {
     }
   }
 
-  //対戦高入力(直接)
-  games.forEach(function(game, index){
-    setDirect(4, 3 + index, game[0] + ' - ' + game[1]);
-  });
-
   //項番と予想入力(データに)
-  for(var i = 0; i < forcastNum; i++){
-    setData(1 + i, 1, i + 1);
+  for(var i = defForcastsLength; i < forcastNum; i++){
     var binForcast = '';
 
     while(true){
@@ -88,29 +84,25 @@ function randomForecast() {
         break;
       }
     }
-
-    for(var j = 0; j < games.length; j++){
-      setData(1+ i, 2 + j, games[j][binForcast.substr(j, 1)]);
-    }
   }
-  
-  sheet.getRange(6, 2, forcastNum, round + 1).setValues(sheet_data);
+
+  SpreadsheetApp.getActive().getSheetByName("シート4").getRange(9, 1).setValue(JSON.stringify(forcasts));
 }
 
 function getData(y,x){
-  return sheet_data[y-1][x-1];
+  return sheet_data1[y-1][x-1];
 }
 
 function getDirect(y,x){
-  var range = sheet.getRange(y, x);
+  var range = sheet1.getRange(y, x);
   return range.getValue();
 }
 
 function setData(y,x,data){
-  sheet_data[y - 1][x - 1] = data;
+  sheet_data1[y - 1][x - 1] = data;
 }
 
 function setDirect(y,x,data){
-  var range = sheet.getRange(y, x);
+  var range = sheet1.getRange(y, x);
   range.setValue(data);
 }
