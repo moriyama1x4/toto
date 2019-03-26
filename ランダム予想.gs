@@ -4,8 +4,7 @@ var sheet = SpreadsheetApp.getActive().getSheetByName(name);
 var sheet_data;
 
 function randomForecast() {
-  var round = 16;
-    var games = [ //roundと同じ配列数である必要がある 
+  var games = [
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
     ['履正社', '星稜'],
@@ -27,11 +26,11 @@ function randomForecast() {
   var patternsNum = Math.pow(2, games.length);
   var forcasts = [];
   var forcastNum = Math.floor(getDirect(3, 2))
-  sheet_data = sheet.getRange(6, 2, forcastNum, round + 1).getValues()
+  sheet_data = sheet.getRange(6, 2, forcastNum, games.length + 1).getValues()
 
   //フォームの入力を転記(直接)
-  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, round).getValues();
-  sheet.getRange(3, 3, 1, round).setValues(formForcasts);
+  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, games.length).getValues();
+  sheet.getRange(3, 3, 1, games.length).setValues(formForcasts);
 
   //予想数がレンジ内かチェック(0or1の数は未考慮)
   if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
@@ -102,11 +101,11 @@ function randomForecast() {
     }
 
     for(var j = 0; j < games.length; j++){
-      setData(1+ i, 2 + j, games[j][binForcast.substr(j, 1)]);
+      setData(1 + i, 2 + j, games[j][binForcast.substr(j, 1)]);
     }
   }
   Logger.log(forcasts);
-  sheet.getRange(6, 2, forcastNum, round + 1).setValues(sheet_data);
+  sheet.getRange(6, 2, forcastNum, games.length + 1).setValues(sheet_data);
 }
 
 function getData(y,x){

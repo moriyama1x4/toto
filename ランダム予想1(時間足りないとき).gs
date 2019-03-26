@@ -1,11 +1,10 @@
-var watchSheet1 = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
-var name = watchSheet1.getRange(watchSheet1.getLastRow(), 2).getValue();
-var sheet1 = SpreadsheetApp.getActive().getSheetByName(name);
-var sheet_data1;
+var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
+var name = watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
+var sheet = SpreadsheetApp.getActive().getSheetByName(name);
+var sheet_data;
 
 function randomForecastPart1() {
-  var round = 16;
-    var games = [ //roundと同じ配列数である必要がある 
+  var games = [
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
     ['履正社', '星稜'],
@@ -90,19 +89,19 @@ function randomForecastPart1() {
 }
 
 function getData(y,x){
-  return sheet_data1[y-1][x-1];
+  return sheet_data[y-1][x-1];
 }
 
 function getDirect(y,x){
-  var range = sheet1.getRange(y, x);
+  var range = sheet.getRange(y, x);
   return range.getValue();
 }
 
 function setData(y,x,data){
-  sheet_data1[y - 1][x - 1] = data;
+  sheet_data[y - 1][x - 1] = data;
 }
 
 function setDirect(y,x,data){
-  var range = sheet1.getRange(y, x);
+  var range = sheet.getRange(y, x);
   range.setValue(data);
 }
