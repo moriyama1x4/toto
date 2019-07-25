@@ -1,9 +1,14 @@
-var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
-var name = watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
-var sheet = SpreadsheetApp.getActive().getSheetByName(name);
-var sheet_data;
-
 function randomForecast() {
+  var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
+  var name = 'もりやま'//watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
+  var sheet = SpreadsheetApp.getActive().getSheetByName(name);
+  var topMargin = 4;
+  var leftMargin = 3;
+  var forecastNumCol = topMargin - 2;
+  var forecastNumRow = leftMargin;
+  var winRatesCol = topMargin - 2;
+  var startTime = new Date();
+  
   var games = [
     ['呉', '市和歌山'],
     ['高松商', '春日部共栄'],
@@ -20,34 +25,29 @@ function randomForecast() {
     ['明石商', '国士舘'],
     ['松山聖陵', '大分'],
     ['啓新', '桐蔭学園'],
-    ['熊本西', '智弁和歌山']
+    ['熊本西', '智弁和歌山'],
+    ['にやむ', 'むにや']
   ];
   var winRates = [];
   var patternsNum = Math.pow(2, games.length);
-  var forcasts = [];
-  var forcastNum = Math.floor(getDirect(3, 2))
-  sheet_data = sheet.getRange(6, 2, forcastNum, games.length + 1).getValues()
-
-  //フォームの入力を転記(直接)
-  var formForcasts = watchSheet.getRange(watchSheet.getLastRow(), 3, 1, games.length).getValues();
-  sheet.getRange(3, 3, 1, games.length).setValues(formForcasts);
-
+  var forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
+  var forecasts = trans(sheet.getRange(1, 1, forecastNum, 1).getValues().filter(String))[0];
+  if(!forecasts){
+    forecasts = [];
+  }
+  var initForecastLength = forecasts.length;
+  var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, games.length).getValues();
+  
   //予想数がレンジ内かチェック(0or1の数は未考慮)
-  if(!(forcastNum >= 1 && forcastNum <= patternsNum)){
+  if(!(forecastNum >= 1 && forecastNum <= patternsNum)){
     Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternsNum + ')',Browser.Buttons.OK);
     return;
   }
-
-  //シートクリア(直接)
-  var lastRow = sheet.getLastRow()
-  if(lastRow > 5){
-    sheet.getRange(6, 2, lastRow - 5, sheet.getLastColumn() - 1).setValue('');
-  }
-
+  
   //勝率取得
-  for(var i = 0; i < games.length; i ++){
-    var winRate = getDirect(3, 3 + i);
-
+  for(var i = 1; i <= games.length; i ++){
+    var winRate = getDirect(winRatesCol, leftMargin + i);
+    
     if(winRate >= 0 && winRate <= 1 && winRate !== ''){
       winRates.push(winRate);
     }else{
@@ -55,73 +55,117 @@ function randomForecast() {
       return;
     }
   }
-
-  //対戦高入力(直接)
-  games.forEach(function(game, index){
-    setDirect(4, 3 + index, game[0] + ' - ' + game[1]);
-  });
-
+  
   //項番と予想入力(データに)
-  for(var i = 0; i < forcastNum; i++){
-    setData(1 + i, 1, i + 1);
-    var binForcast = '';
-
-    while(true){
-      binForcast = '';
-      var contFlag = false;
-      var decForcast;
-
-      for(var j = 0; j < games.length; j++){
-        var rnd = Math.random();
-        if(rnd <= winRates[j]){
-          binForcast += '0';
-        }else{
-          binForcast += '1';
+  for(var i = initForecastLength; i < forecastNum; i++){
+    var currentTime = new Date();
+    var pastTime = (currentTime - startTime) / (1000 * 60);
+    
+    //ある程度越えたら一時書き込みして再起動
+    if(pastTime <= 3){
+      var binforecast = '';
+      
+      while(true){
+        binforecast = '';
+        var contFlag = false;
+        var decforecast;
+        
+        for(var j = 0; j < games.length; j++){
+          var rnd = Math.random();
+          if(rnd <= winRates[j]){
+            binforecast += '0';
+          }else{
+            binforecast += '1';
+          }
         }
-      }
-
-      decForcast = parseInt(binForcast, 2);
-      for(var j = 0; j <= i; j++){
-        if(forcasts[j] < decForcast){
+        
+        decforecast = parseInt(binforecast, 2);
+        for(var j = 0; j <= i; j++){
+          if(forecasts[j] < decforecast){
+            continue;
+          }else if(forecasts[j] == decforecast){
+            contFlag = true;
+            break;
+          }else if(forecasts[j] > decforecast || j ==　i){
+            forecasts.splice(j, 0, Number(decforecast));
+            break;
+          }
+        }
+        
+        if(contFlag){
           continue;
-        }else if(forcasts[j] == decForcast){
-          contFlag = true;
-          break;
-        }else if(forcasts[j] > decForcast || j ==　i){
-          forcasts.splice(j, 0, decForcast);
+        }else{
           break;
         }
       }
-
-      if(contFlag){
-        continue;
-      }else{
-        break;
-      }
-    }
-
-    for(var j = 0; j < games.length; j++){
-      setData(1 + i, 2 + j, games[j][binForcast.substr(j, 1)]);
+    }else{
+      //一時保存
+      sheet.getRange(1, 1, forecasts.length, 1).setValues(trans([forecasts]))
+      
+      //再起動の為のトリガー設定
+      deleteTriggers("randomForecast"); //多すぎるとトリガー作れなくなるので都度消す
+      ScriptApp.newTrigger('randomForecast').timeBased().after(10 * 1000).create();
+      return;
     }
   }
-  Logger.log(forcasts);
-  sheet.getRange(6, 2, forcastNum, games.length + 1).setValues(sheet_data);
-}
-
-function getData(y,x){
-  return sheet_data[y-1][x-1];
-}
-
-function getDirect(y,x){
-  var range = sheet.getRange(y, x);
-  return range.getValue();
-}
-
-function setData(y,x,data){
-  sheet_data[y - 1][x - 1] = data;
-}
-
-function setDirect(y,x,data){
-  var range = sheet.getRange(y, x);
-  range.setValue(data);
+  
+    //シートクリア(直接)
+  var lastRow = sheet.getLastRow()
+  if(sheet.getLastRow() > topMargin){
+    sheet.getRange(topMargin + 1, leftMargin + 1, lastRow - topMargin, games.length).setValue('');
+  }
+  
+  //対戦高入力(直接)
+  games.forEach(function(game, index){
+    setDirect(topMargin - 1, (leftMargin + 1) + index, game[0] + ' - ' + game[1]);
+  });
+  
+  //項予想入力(データに)
+  for(var i = 0; i < forecastNum; i++){
+    var binForcast = ( Array(games.length + 1).join("0") + parseInt(forecasts[i], 10).toString(2)).slice(-games.length);
+    
+    for(var j = 0; j < games.length; j++){
+      Logger.log(binForcast.substr(j, 1));
+      setData(1 + i, 1 + j, games[j][binForcast.substr(j, 1)]);
+    }
+  }
+  
+//  sheet.getRange(1, 2, forecasts.length, 1).setValues(trans([forecasts]));
+  sheet.getRange(1, 1, sheet.getLastRow(), 1).clear();
+  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, games.length).setValues(sheet_data);
+  deleteTriggers("randomForecast");
+  
+  return;
+  
+  
+  function getData(y,x){
+    return sheet_data[y-1][x-1];
+  }
+  
+  function getDirect(y,x){
+    var range = sheet.getRange(y, x);
+    return range.getValue();
+  }
+  
+  function setData(y,x,data){
+    sheet_data[y - 1][x - 1] = data;
+  }
+  
+  function setDirect(y,x,data){
+    var range = sheet.getRange(y, x);
+    range.setValue(data);
+  }
+  
+  function trans(data){
+    var _ = Underscore.load();
+    return _.zip.apply(_, data);
+  }
+  
+  function deleteTriggers(name){
+    var triggers = ScriptApp.getProjectTriggers();
+    for( var i = 0; i < triggers.length; ++i ){
+      if(triggers[i].getHandlerFunction() == name)
+        ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
 }
