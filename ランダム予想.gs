@@ -1,51 +1,37 @@
-function randomForecast() {
-  var watchSheet = SpreadsheetApp.getActive().getSheetByName('フォームの回答');
-  var name = 'もりやま'//watchSheet.getRange(watchSheet.getLastRow(), 2).getValue();
+function randomForecast(string) {
+  var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
+  var name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
   var sheet = SpreadsheetApp.getActive().getSheetByName(name);
   var topMargin = 4;
   var leftMargin = 3;
   var forecastNumCol = topMargin - 2;
-  var forecastNumRow = leftMargin;
+  var forecastNumRow = leftMargin - 1;
   var winRatesCol = topMargin - 2;
-  var startTime = new Date();
-  
-  var games = [
-    ['呉', '市和歌山'],
-    ['高松商', '春日部共栄'],
-    ['履正社', '星稜'],
-    ['日章学園', '習志野'],
-    ['明豊', '横浜'],
-    ['米子東', '札幌大谷'],
-    ['津田学園', '龍谷大平安'],
-    ['盛岡大付', '石岡一'],
-    ['山梨学院', '札幌第一'],
-    ['筑陽学園', '福知山成美'],
-    ['広陵', '八戸学院光星'],
-    ['富岡西', '東邦'],
-    ['明石商', '国士舘'],
-    ['松山聖陵', '大分'],
-    ['啓新', '桐蔭学園'],
-    ['熊本西', '智弁和歌山'],
-    ['にやむ', 'むにや']
-  ];
-  var winRates = [];
-  var patternsNum = Math.pow(2, games.length);
-  var forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
-  var forecasts = trans(sheet.getRange(1, 1, forecastNum, 1).getValues().filter(String))[0];
-  if(!forecasts){
-    forecasts = [];
+  var form
+  var games = formSheet.getRange(1, 3, 1, formSheet.getLastColumn() - 2).getValues()[0];
+  var gameNum = games.length;
+  for(var i = 0; i < gameNum; i++){
+    games[i] = games[i].match(/\(.*\)/)[0].replace(/\(|\)/g, "").split(" - ");
   }
-  var initForecastLength = forecasts.length;
-  var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, games.length).getValues();
+  
+  var winRates = [];
+  var patternNum = Math.pow(2, gameNum);
+  var forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
+  var forecasts = [];
+  var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).getValues();
+  
+  //フォームの入力を転記(直接)
+  var formForcasts = formSheet.getRange(formSheet.getLastRow(), 3, 1, gameNum).getValues();
+  sheet.getRange(topMargin - 2, leftMargin + 1, 1, gameNum).setValues(formForcasts);
   
   //予想数がレンジ内かチェック(0or1の数は未考慮)
-  if(!(forecastNum >= 1 && forecastNum <= patternsNum)){
-    Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternsNum + ')',Browser.Buttons.OK);
+  if(!(forecastNum >= 1 && forecastNum <= patternNum)){
+    Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternNum + ')',Browser.Buttons.OK);
     return;
   }
   
   //勝率取得
-  for(var i = 1; i <= games.length; i ++){
+  for(var i = 1; i <= gameNum; i ++){
     var winRate = getDirect(winRatesCol, leftMargin + i);
     
     if(winRate >= 0 && winRate <= 1 && winRate !== ''){
@@ -57,62 +43,49 @@ function randomForecast() {
   }
   
   //項番と予想入力(データに)
-  for(var i = initForecastLength; i < forecastNum; i++){
-    var currentTime = new Date();
-    var pastTime = (currentTime - startTime) / (1000 * 60);
+  for(var i = 0; i < forecastNum; i++){
+    var binforecast = '';
     
-    //ある程度越えたら一時書き込みして再起動
-    if(pastTime <= 3){
-      var binforecast = '';
+    while(true){
+      binforecast = '';
+      var contFlag = false;
+      var decforecast;
       
-      while(true){
-        binforecast = '';
-        var contFlag = false;
-        var decforecast;
-        
-        for(var j = 0; j < games.length; j++){
-          var rnd = Math.random();
-          if(rnd <= winRates[j]){
-            binforecast += '0';
-          }else{
-            binforecast += '1';
-          }
-        }
-        
-        decforecast = parseInt(binforecast, 2);
-        for(var j = 0; j <= i; j++){
-          if(forecasts[j] < decforecast){
-            continue;
-          }else if(forecasts[j] == decforecast){
-            contFlag = true;
-            break;
-          }else if(forecasts[j] > decforecast || j ==　i){
-            forecasts.splice(j, 0, Number(decforecast));
-            break;
-          }
-        }
-        
-        if(contFlag){
-          continue;
+      for(var j = 0; j < gameNum; j++){
+        var rnd = Math.random();
+        if(rnd <= winRates[j]){
+          binforecast += '0';
         }else{
+          binforecast += '1';
+        }
+      }
+      
+      decforecast = parseInt(binforecast, 2);
+      for(var j = 0; j <= i; j++){
+        if(forecasts[j] < decforecast){
+          continue;
+        }else if(forecasts[j] == decforecast){
+          contFlag = true;
+          break;
+        }else if(forecasts[j] > decforecast || j ==　i){
+          forecasts.splice(j, 0, Number(decforecast));
           break;
         }
       }
-    }else{
-      //一時保存
-      sheet.getRange(1, 1, forecasts.length, 1).setValues(trans([forecasts]))
       
-      //再起動の為のトリガー設定
-      deleteTriggers("randomForecast"); //多すぎるとトリガー作れなくなるので都度消す
-      ScriptApp.newTrigger('randomForecast').timeBased().after(10 * 1000).create();
-      return;
+      if(contFlag){
+        continue;
+      }else{
+        break;
+      }
     }
+    
   }
   
-    //シートクリア(直接)
+  //シートクリア(直接)
   var lastRow = sheet.getLastRow()
   if(sheet.getLastRow() > topMargin){
-    sheet.getRange(topMargin + 1, leftMargin + 1, lastRow - topMargin, games.length).setValue('');
+    sheet.getRange(topMargin + 1, leftMargin + 1, lastRow - topMargin, gameNum).setValue('');
   }
   
   //対戦高入力(直接)
@@ -122,21 +95,15 @@ function randomForecast() {
   
   //項予想入力(データに)
   for(var i = 0; i < forecastNum; i++){
-    var binForcast = ( Array(games.length + 1).join("0") + parseInt(forecasts[i], 10).toString(2)).slice(-games.length);
+    var binForcast = ( Array(gameNum + 1).join("0") + parseInt(forecasts[i], 10).toString(2)).slice(-gameNum);
     
-    for(var j = 0; j < games.length; j++){
-      Logger.log(binForcast.substr(j, 1));
+    for(var j = 0; j < gameNum; j++){
       setData(1 + i, 1 + j, games[j][binForcast.substr(j, 1)]);
     }
   }
   
-//  sheet.getRange(1, 2, forecasts.length, 1).setValues(trans([forecasts]));
-  sheet.getRange(1, 1, sheet.getLastRow(), 1).clear();
-  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, games.length).setValues(sheet_data);
-  deleteTriggers("randomForecast");
-  
+  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).setValues(sheet_data);
   return;
-  
   
   function getData(y,x){
     return sheet_data[y-1][x-1];
