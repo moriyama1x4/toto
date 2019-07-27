@@ -1,6 +1,6 @@
 function forecast(gameNum) {
-  var watchSheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + gameNum + '_回答');
-  var name = watchSheet.getRange(watchSheet.getLastRow(), 2).getValue(); 
+  var formSheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + gameNum + '_回答');
+  var name = formSheet.getRange(formSheet.getLastRow(), 2).getValue(); 
   var sheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + gameNum);
   var topMargin = 2;
   var forecastCol = 3;
@@ -9,7 +9,7 @@ function forecast(gameNum) {
   var forecasts = [];
   
   //フォームの入力を転記(直接)
-  forecasts = watchSheet.getRange(watchSheet.getLastRow(), 3).getValue().replace(/ /g, "").split(",");
+  forecasts = formSheet.getRange(formSheet.getLastRow(), 3).getValue().replace(/ /g, "").split(",");
   forecastNum = forecasts.length
   
   for(var i = 0; i < forecastNum; i++){
