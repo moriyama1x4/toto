@@ -2,8 +2,8 @@ function randomForecast(string) {
   var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
   var name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
   var sheet = SpreadsheetApp.getActive().getSheetByName(name);
-  var topMargin = 4;
-  var leftMargin = 3;
+  var topMargin = 3;
+  var leftMargin = 2;
   var forecastNumCol = topMargin - 2;
   var forecastNumRow = leftMargin - 1;
   var winRatesCol = topMargin - 2;
