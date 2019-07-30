@@ -1,9 +1,11 @@
-function forecast(gameNum) {
-  var formSheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + gameNum + '_回答');
-  var name = formSheet.getRange(formSheet.getLastRow(), 2).getValue(); 
-  var sheet = SpreadsheetApp.getActive().getSheetByName('ベスト' + gameNum);
+function choiseForecast(string) {
+  var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
+  var name = formSheet.getRange(formSheet.getLastRow(), 2).getValue();
+  var sheet = SpreadsheetApp.getActive().getSheetByName(string.replace("回答_", ""));
   var topMargin = 2;
-  var forecastCol = 3;
+  var leftMargin = 1;
+  var nameCol = leftMargin + 1;
+  var forecastCol = nameCol + 1;
   var memberNum = 6;
   var forecastNum; //一人当たりの予想数
   var forecasts = [];
@@ -13,35 +15,37 @@ function forecast(gameNum) {
   forecastNum = forecasts.length
   
   for(var i = 0; i < forecastNum; i++){
-      forecasts[i] = forecasts[i].split("/");
+    forecasts[i] = forecasts[i].split("/");
   }
   
+  var gameNum = forecasts[0].length;
+  
   //シートの大きさがわかったところで取得
-  var sheetData = sheet.getRange(topMargin + 1, 1, forecastNum * memberNum, forecastCol + gameNum - 1).getValues();
+  var sheetData = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum * memberNum, gameNum + 1).getValues();
+  
   
   //予想をデータに取り込み
   var inputNum = 0; //書き込んだ数
   for(var i = 1; i <= forecastNum * memberNum; i++){
     if(getData(i, 1) == name){
       for(var j = 0; j < gameNum; j++){
-        setData(i, forecastCol + j, forecasts[inputNum][j]);
+        setData(i, (forecastCol - leftMargin) + j, forecasts[inputNum][j]);
       }
       
       inputNum++;
       if(inputNum >= forecastNum){
         break;
-      } 
+      }
     }
   }
   
   //予想だけ抽出
-  for(var i = 0; i < forecastNum * memberNum; i++){
-    sheetData[i].splice(0, forecastCol - 1)
-  }
+//  for(var i = 0; i < forecastNum * memberNum; i++){
+//    sheetData[i].splice(0, forecastCol - 1)
+//  }
   
   //書き込み
-  sheet.getRange(topMargin + 1, forecastCol, forecastNum * memberNum, gameNum).setValues(sheetData);
-  
+  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum * memberNum, gameNum + 1).setValues(sheetData);
   
   
   function getData(y,x){
@@ -62,4 +66,3 @@ function forecast(gameNum) {
     range.setValue(data);
   }
 }
-

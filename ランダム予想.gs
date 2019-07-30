@@ -90,7 +90,7 @@ function randomForecast(string) {
   
   //対戦高入力(直接)
   games.forEach(function(game, index){
-    setDirect(topMargin - 1, (leftMargin + 1) + index, game[0] + ' - ' + game[1]);
+    setDirect(topMargin - 1, (leftMargin + 1) + index, game[0] + '\nvs\n' + game[1]);
   });
   
   //項予想入力(データに)

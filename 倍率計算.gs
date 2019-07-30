@@ -3,13 +3,13 @@ function carryOver() {
   var sheetData = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
   
   var memberNum = 6; //人数
-  var gameNum = 26; //全試合数
+  var gameNum = 48; //全試合数
   var topMargin = 2;
   var team1Col = 3;
   var team2Col = 4;
   var resultCol = 5;
   var hitCol = resultCol + memberNum + 1;
-  var rateCol = resultCol + (memberNum * 3) + 2;
+  var rateCol = resultCol + (memberNum * 2) + 2;
   
   //倍率を全部1に
   for(var i = (topMargin + 1); i <= (topMargin + gameNum); i++){
@@ -29,9 +29,9 @@ function carryOver() {
     if(getData(i, resultCol) !== "" && (hitSum == 0 || hitMulti == 1)){
       var carryTeam = [];
       
-      if(getData(i, resultCol) > 0){
+      if(getData(i, resultCol) == "◯"){
         carryTeam.push(getData(i, team1Col));
-      }else if(getData(i, resultCol) < 0){
+      }else if(getData(i, resultCol) == "×"){
         carryTeam.push(getData(i, team2Col));
       }else if(getData(i, resultCol) === 0){
         carryTeam.push(getData(i, team1Col));
