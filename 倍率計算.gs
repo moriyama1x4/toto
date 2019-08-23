@@ -10,6 +10,7 @@ function carryOver() {
   var resultCol = 5;
   var hitCol = resultCol + memberNum + 1;
   var rateCol = resultCol + (memberNum * 2) + 2;
+  var nettoCol = rateCol + 1;
   
   //倍率を全部1に
   for(var i = (topMargin + 1); i <= (topMargin + gameNum); i++){
@@ -29,11 +30,11 @@ function carryOver() {
     if(getData(i, resultCol) !== "" && (hitSum == 0 || hitMulti == 1)){
       var carryTeam = [];
       
-      if(getData(i, resultCol) == "◯"){
+      if(getData(i, resultCol) == 1){ //勝ち負けの表現により値変わる
         carryTeam.push(getData(i, team1Col));
-      }else if(getData(i, resultCol) == "×"){
+      }else if(getData(i, resultCol) == 2){
         carryTeam.push(getData(i, team2Col));
-      }else if(getData(i, resultCol) === 0){
+      }else if(getData(i, resultCol) === 0){//引き分けがある時
         carryTeam.push(getData(i, team1Col));
         carryTeam.push(getData(i, team2Col));
       }
@@ -48,6 +49,13 @@ function carryOver() {
       }
       
       setData(i, rateCol, 0);
+    }
+  }
+  
+  //熱闘倍率
+  for(var i = topMargin + 1; i <= (topMargin + gameNum); i++){
+    if(getData(i, nettoCol) == "〇"){
+      setData(i, rateCol, getData(i, rateCol) * 2);
     }
   }
   
