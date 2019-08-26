@@ -7,7 +7,6 @@ function randomForecast(string) {
   var forecastNumCol = topMargin - 2;
   var forecastNumRow = leftMargin - 1;
   var winRatesCol = topMargin - 2;
-  var form
   var games = formSheet.getRange(1, 3, 1, formSheet.getLastColumn() - 2).getValues()[0];
   var gameNum = games.length;
   for(var i = 0; i < gameNum; i++){
