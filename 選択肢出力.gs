@@ -1,19 +1,19 @@
-function getChoises() {
-  var  games = [
-    ["ブラジル", "パラグアイ"], 
-    ["ベネズエラ", "アルゼンチン"], 
-    ["コロンビア", "チリ"],
-    ["沖縄", "北海道"]
-  ];
+function getChoises1() {
+  var  games = [["白樺学園", "国士舘"],
+                ["天理", "仙台育英"],
+                ["明豊", "健大高崎"],
+                ["星稜", "中京大中京"]];
   
   var gameNum = games.length;
   
-  for(i = 0; i < gameNum; i++){
-    var question = games[i][0] + "の勝率(" + games[i][0] + " - " + games[i][1] + ")";
-    Logger.log(question);
-  }
   
-  Logger.log("====ここから指定予想====")
+  // ====ランダム予想====
+//  for(i = 0; i < gameNum; i++){
+//    var question = games[i][0] + "の勝率(" + games[i][0] + " - " + games[i][1] + ")";
+//    Logger.log(question);
+//  }
+  
+  // ====ここから指定予想====
   
   for(i = 0; i < Math.pow(2, gameNum); i++){
     var choises = "";
@@ -26,4 +26,82 @@ function getChoises() {
     Logger.log(choises);
   }
   
+}
+
+function getChoises2() {
+  var  groups = [["ナダル", "メドベージェフ", "チチパス", "ズベレフ"],
+                ["ジョコビッチ", "フェデラー", "ティーム", "ベレッティーニ"]];
+  
+  var groupNum = groups.length;
+  var teamNum = groups[0].length;
+  var winNum = 2; //各グループの上位進出数
+  var patterns = [];
+  var text = ""
+ 
+  for(var i = 0; i < groupNum; i++){
+    patterns.push(generateChoise(groups[i], winNum));
+  }
+  
+  var patternNum = patterns[0].length; //各グループのパターン数
+  
+  for(var i = 0; i < patternNum; i++){
+    text = ""
+    
+    for(var j = 0; j < patternNum; j++){
+      text = patterns[0][i][0] + "/" + patterns[0][i][1] + "/" + patterns[1][j][0] + "/" + patterns[1][j][1]
+       Logger.log(text)
+    }
+   
+  }
+}
+
+//配列からnこの要素を選ぶ全パターン
+function generateChoise(arr, n) {
+  var m = arr.length;
+  if(m < n){
+    return;
+  }
+  var result = [];
+  var resultNum = choiseNum(m, n);
+  var index = [];
+  var choise = [];
+  
+  //初期組み合わせ
+  for(var i = 1; i <= n; i++){
+    index.push(i);
+    choise.push(arr[i - 1]);
+  }
+  result.push(choise.concat());
+  
+  for(var i = 0; i < resultNum - 1; i++){
+    //組み合わせずらし
+    for(var j = n - 1; j >= 0; j--){
+      //閾値設定
+      var threshold;
+      if(j == n - 1){
+        threshold = m + 1;
+      }else{
+        threshold = index[j + 1];
+      }
+      
+      if(index[j] + 1 < threshold){
+        //ずらせる一番上ずらし
+        index[j] = index[j] + 1;
+        choise[j] = arr[index[j] - 1];
+        
+        //ずらしたものより上を隣に
+        for(var k = j + 1; k < n; k++){
+          index[k] = index[j] + (k - j);
+          choise[k] = arr[index[k] - 1];
+        }
+        
+        result.push(choise.concat());
+        break;
+      }else{
+        continue;
+      }
+    }
+  }
+  
+  return result;
 }
