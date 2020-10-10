@@ -7,7 +7,7 @@ function getChoises1() {
   var gameNum = games.length;
   
   
-  // ====ランダム予想====
+  // ====最適予想====
 //  for(i = 0; i < gameNum; i++){
 //    var question = games[i][0] + "の勝率(" + games[i][0] + " - " + games[i][1] + ")";
 //    Logger.log(question);

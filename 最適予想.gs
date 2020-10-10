@@ -1,4 +1,4 @@
-function optimalforecast(string){
+function optimalForecast(string){
   var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
   var name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
   var sheet = SpreadsheetApp.getActive().getSheetByName(name);
