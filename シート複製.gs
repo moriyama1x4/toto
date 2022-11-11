@@ -1,6 +1,7 @@
 function copySheet() {
   var bestNum = 16;
-  var suffix = "_ベスト" + bestNum;
+  // var suffix = "_ベスト" + bestNum;
+  var suffix = "_GL1位";
   var masterMem = "あらい";
   var subMems = ["さとう", "しょーの", "ふじた", "まみづか", "もりやま"];
   var book = SpreadsheetApp.getActive();
@@ -28,17 +29,17 @@ function copySheet() {
   
   
   //収支の参照がバグるので、こぴって直す
-  var plSheet = book.getSheetByName("収支")
-  var bestNumRow = 3;
-  var memRow = bestNumRow + 2;
-  var bestNums = plSheet.getRange(bestNumRow, 1, 1, plSheet.getLastColumn()).getValues()[0];
-  var targetCol;
+  // var plSheet = book.getSheetByName("収支")
+  // var bestNumRow = 3;
+  // var memRow = bestNumRow + 2;
+  // var bestNums = plSheet.getRange(bestNumRow, 1, 1, plSheet.getLastColumn()).getValues()[0];
+  // var targetCol;
   
-  bestNums.forEach(function(value, index){
-    if(value == bestNum){
-      targetCol = index + 1;
-    }
-  })
+  // bestNums.forEach(function(value, index){
+  //   if(value == bestNum){
+  //     targetCol = index + 1;
+  //   }
+  // })
   
   var targetRange = plSheet.getRange(memRow, targetCol, subMems.length + 1, 1);
   targetRange.copyTo(targetRange);

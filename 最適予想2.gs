@@ -1,5 +1,4 @@
 function optimalForecast2(string){
-  var string = "回答_GL1位";
   const formSheet = SpreadsheetApp.getActive().getSheetByName(string);
   const name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
   const sheet = SpreadsheetApp.getActive().getSheetByName(name);
