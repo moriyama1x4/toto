@@ -3,14 +3,14 @@ function carryOver() {
   var sheetData = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
   
   var memberNum = 6; //人数
-  var gameNum = 9; //全試合数
+  var gameNum = 48; //全試合数
   var topMargin = 2;
   var indexCol = 2;
-  var team1Col = 3;
-  var team2Col = 4;
-  var resultCol = 5;
-  var hitCol = resultCol + memberNum + 1;
-  var rateCol = resultCol + (memberNum * 3) + 2;
+  var team1Col = indexCol + 1;
+  var team2Col = team1Col + 1;
+  var resultCol = team2Col + 1;
+  var hitCol = resultCol + (memberNum * 2) + 1;
+  var rateCol = hitCol + (memberNum * 2) + 1;
   var nettoCol = rateCol + 1;
   
   //倍率を全部1に
@@ -21,14 +21,17 @@ function carryOver() {
   //倍率更新
   for(var i = (topMargin + 1); i <= (topMargin + gameNum); i++){
     var hitSum = 0; //的中フラグの総和
-    var hitMulti = 1; //的中フラグの総乗
-    
+    var carryFlag = false;
+
     for(var j = 0; j < memberNum; j++){
       hitSum += getData(i, hitCol + j);
-      hitMulti *= getData(i, hitCol + j);
     }
-    
-    if(getData(i, resultCol) !== "" && (hitSum == 0 || hitMulti == 1)){
+
+    if(Math.abs(hitSum) == memberNum){
+      carryFlag = true;
+    }
+
+    if(getData(i, resultCol) !== "" && carryFlag){
       var carryTeam = [];
       
       if(getData(i, resultCol) > 0){ //勝ち負けの表現により値変わる

@@ -1,3 +1,4 @@
+/*
 function onOpen() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
   var entries = [
@@ -8,3 +9,4 @@ function onOpen() {
   ];
   sheet.addMenu("プログラム", entries);
 };
+*/
