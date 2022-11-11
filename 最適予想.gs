@@ -15,7 +15,6 @@ function optimalForecast(string){
   
   var patternNum = Math.pow(2, gameNum);
   var forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
-  var forecasts = [];
   var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).getValues();
   
   var rateIndexes = [[], [], [], []]; //0.9⇒0.6の順

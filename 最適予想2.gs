@@ -21,9 +21,6 @@ function optimalForecast2(){
   var forecasts = [];
   // var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).getValues();
   
- 
-  var quaForecasts = [];
-  
   
   //予想数がレンジ内かチェック(0or1の数は未考慮)
   // if(!(forecastNum >= 1 && forecastNum <= patternNum)){
@@ -38,6 +35,7 @@ function optimalForecast2(){
   // }
   
   //フォームの入力を転記(直接)
+  var forecastRates = [[10, 20, 30, 40], [40, 20, 20, 0], [55, 5, 15, 25], [100, 0, 0 ,0]]
   // var forecastRates = formSheet.getRange(formSheet.getLastRow(), 3, 1, gameNum).getValues()[0];
   // sheet.getRange(topMargin - 2, leftMargin + 1, 1, gameNum).setValues([forecastRates]);
   
@@ -56,13 +54,24 @@ function optimalForecast2(){
     for(var j = 0; j < gameNum; j++){
       zeropad += "0";
     }
-    var results = (zeropad + i.toString(4)).slice(-gameNum); //hを6進数にして、桁数をゲーム数に揃え
-    console.log(results)
+    var results = (zeropad + i.toString(4)).slice(-gameNum); //hを4進数にして、桁数をゲーム数に揃え
+    var resultRate = 1; //このパターンが起こる確率
+
+    for(var j = 0; j < gameNum; j++){
+      var result = results.slice(j, j + 1);
+      resultRate *= forecastRates[j][result] / 100;
+    }
+
+    
+    if(forecasts.length < forecastNum){//予想数がベット数下回ってたら、とりあえずプッシュ
+      forecasts.push([resultRate, results]);
+    }else if(forecasts[0][0] < resultRate){//予想数がベット数超えてたら、最低予想と比較して入れ替え
+      forecasts[0] = [resultRate, results]
+    }
+    forecasts.sort()
+
   }
-
-
-  
- 
+console.log(forecasts)
 
   
   //項予想入力(データに)
