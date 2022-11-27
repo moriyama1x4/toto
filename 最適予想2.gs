@@ -1,60 +1,50 @@
-function optimalForecast2(string){
-  const formSheet = SpreadsheetApp.getActive().getSheetByName(string);
-  const name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
-  const sheet = SpreadsheetApp.getActive().getSheetByName(name);
-  const topMargin = 3;
-  const leftMargin = 2;
-  const forecastNumCol = topMargin - 2;
-  const forecastNumRow = leftMargin - 1;
-  const teamNum = 4;
-  const rawGames = formSheet.getRange(1, 3, 1, formSheet.getLastColumn() - 2).getValues()[0];
-  var games = [];
-  for(var i = 0; i < rawGames.length; i += teamNum){
-    games.push(rawGames[i].replace(/\ \[.*/g, ""))
-  }
-  const gameNum = games.length;
-  for(var i = 0; i < gameNum; i++){
-    games[i] = games[i].split("/");
-  }
-  console.log(games)
+// function optimalForecast2(string){
+function optimalForecast2(){
+  // var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
+  // var name = string.replace("回答", formSheet.getRange(formSheet.getLastRow(), 2).getValue());
+  // var sheet = SpreadsheetApp.getActive().getSheetByName(name);
+  // var topMargin = 3;
+  // var leftMargin = 2;
+  // var forecastNumCol = topMargin - 2;
+  // var forecastNumRow = leftMargin - 1;
+  // var winRatesCol = topMargin - 2;
+  // var games = formSheet.getRange(1, 3, 1, formSheet.getLastColumn() - 2).getValues()[0];
+  // var gameNum = games.length;
+  // for(var i = 0; i < gameNum; i++){
+  //   games[i] = games[i].match(/\(.*\)/)[0].replace(/\(|\)/g, "").split(" - ");
+  // }
+  var gameNum = 4
   
-  const patternNum = Math.pow(4, gameNum);
-  const forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
-  // const forecastNum = 16;
+  var patternNum = Math.pow(4, gameNum);
+  // var forecastNum = Math.floor(getDirect(forecastNumCol, forecastNumRow))
+  var forecastNum = 16;
   var forecasts = [];
-  var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).getValues();
+  // var sheet_data = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).getValues();
   
+  
+  //予想数がレンジ内かチェック(0or1の数は未考慮)
+  // if(!(forecastNum >= 1 && forecastNum <= patternNum)){
+  //   Browser.msgBox('予想数に正しい値を入力してください(半角数字1~' + patternNum + ')',Browser.Buttons.OK);
+  //   return;
+  // }
   
   //シートクリア(直接)
-  var lastRow = sheet.getLastRow()
-  if(lastRow > topMargin){
-    sheet.getRange(topMargin + 1, leftMargin + 1, lastRow - topMargin, gameNum).setValue('');
-  }
+  // var lastRow = sheet.getLastRow()
+  // if(sheet.getLastRow() > topMargin){
+  //   sheet.getRange(topMargin + 1, leftMargin + 1, lastRow - topMargin, gameNum).setValue('');
+  // }
   
   //フォームの入力を転記(直接)
-  var rawForecast = formSheet.getRange(formSheet.getLastRow(), 3, 1, gameNum * teamNum).getValues()[0];
-  console.log(rawForecast)
-  var forecastRates = [];
-  for(var i = 0; i < gameNum; i++) {
-      forecastRates.push(rawForecast.slice(teamNum * i, teamNum * (i + 1)))
-  }
-  console.log(forecastRates)
-
-  //100%に正規化
-  for(var i = 0; i < gameNum; i ++) {
-    //予想勝率の合計
-    const totalRate = forecastRates[i].reduce(function(totalRate, forecastRates){
-      return totalRate + forecastRates;
-    }, 0);
-
-    if(totalRate !== 1){
-      for(var j = 0; j < teamNum; j++){
-        forecastRates[i][j] /= totalRate
-      }
-    }
-  }
-  console.log(forecastRates)
-
+  var forecastRates = [[10, 20, 30, 40], [40, 20, 20, 0], [55, 5, 15, 25], [100, 0, 0 ,0]]
+  // var forecastRates = formSheet.getRange(formSheet.getLastRow(), 3, 1, gameNum).getValues()[0];
+  // sheet.getRange(topMargin - 2, leftMargin + 1, 1, gameNum).setValues([forecastRates]);
+  
+  
+  //対戦高入力(直接)
+  //games.forEach(function(game, index){
+  //  setDirect(topMargin - 1, (leftMargin + 1) + index, game[0] + '\nvs\n' + game[1]);
+  //});
+  
   
   
   //全パターン順位付け
@@ -69,7 +59,7 @@ function optimalForecast2(string){
 
     for(var j = 0; j < gameNum; j++){
       var result = results.slice(j, j + 1);
-      resultRate *= forecastRates[j][result];
+      resultRate *= forecastRates[j][result] / 100;
     }
 
     
@@ -81,17 +71,17 @@ function optimalForecast2(string){
     forecasts.sort()
 
   }
-// console.log(forecasts)
+console.log(forecasts)
 
   
   //項予想入力(データに)
-  for(var i = 0; i < forecastNum; i++){    
-    for(var j = 0; j < gameNum; j++){
-      setData(1 + i, 1 + j, games[j][forecasts[i][1].substring(j, j + 1)]);
-    }
-  }
-  // console.log(sheet_data)
-  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).setValues(sheet_data);
+  // for(var i = 0; i < forecastNum; i++){    
+  //   for(var j = 0; j < gameNum; j++){
+  //     setData(1 + i, 1 + j, games[j][binForecasts[i].substring(j, j + 1)]);
+  //   }
+  // }
+  
+  // sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).setValues(sheet_data);
   
   
   

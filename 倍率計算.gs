@@ -27,7 +27,7 @@ function carryOver() {
       hitSum += getData(i, hitCol + j);
     }
 
-    if(Math.abs(hitSum) == memberNum){
+    if(hitSum == -memberNum){
       carryFlag = true;
     }
 
