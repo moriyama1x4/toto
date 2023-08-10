@@ -1,4 +1,4 @@
-function getChoises1() {
+function getChoises1() {//試合組み合わせから
   var  games =[["仙台育英", "聖光学院"],
 ["近江", "下関国際"]]
   
@@ -23,7 +23,7 @@ function getChoises1() {
   }
 }
 
-function getChoises2() {
+function getChoises2() {//複数グループから何チームか
   var  groups = [["ナダル", "メドベージェフ", "チチパス", "ズベレフ"],
                 ["ジョコビッチ", "フェデラー", "ティーム", "ベレッティーニ"]];
   
@@ -50,26 +50,46 @@ function getChoises2() {
   }
 }
 
+
 function getChoises3() {
-  const groups = ["ポルトガル", "ガーナ", "ウルグアイ", "韓国"];
-  const patterns = [[0, 1, 2, 3], [0, 1, 3, 2], [0, 2, 1, 3], [0, 2, 3, 1], [0, 3, 1, 2], [0, 3, 2, 1], 
-                  [1, 0, 2, 3], [1, 0, 3, 2], [1, 2, 0, 3], [1, 2, 3, 0], [1, 3, 0, 2], [1, 3, 2, 0], 
-                  [2, 0, 1, 3], [2, 0, 3, 1], [2, 1, 0, 3], [2, 1, 3, 0], [2, 3, 0, 1], [2, 3, 1, 0], 
-                  [3, 0, 1, 2], [3, 0, 2, 1], [3, 1, 0, 2], [3, 1, 2, 0], [3, 2, 0, 1], [3, 2, 1, 0]]
-
+  const patterns = permutation(["マンチェスターC", "アーセナル", "マンチェスターＵ", "ニューカッスル", "リヴァプール", "ブライトン", "トッテナム", "チェルシー"], 3)
   patterns.forEach(function(pattern){
-    var ranking = [0, 1, 2, 3];
-    pattern.forEach(function(order, index){
-      ranking[index] = groups[order];
+    var text = "";
+    pattern.forEach(function(team, index){
+      if(index !== 0){
+        text += "/";
+      }
+      text += team;
     })
-    Logger.log(ranking[0] + "/" + ranking[1] + "/" + ranking[2] + "/" + ranking[3]);
+    Logger.log(text);
   })
-
-  
-
 }
 
-//配列からnこの要素を選ぶ全パターン
+const permutation = (nums, k) => { //順列出力
+    let ans = []
+    if (nums.length < k) {
+        return []
+    }
+    if (k === 1) {
+        for (let i = 0; i < nums.length; i++) {
+            ans[i] = [nums[i]]
+        }
+    } else {
+        for (let i = 0; i < nums.length; i++) {
+            let parts = nums.slice(0)
+            parts.splice(i, 1)[0]
+            let row = permutation(parts, k - 1)
+            for (let j = 0; j < row.length; j++) {
+                ans.push([nums[i]].concat(row[j]))
+            }
+        }
+    }
+    return ans;
+}
+
+
+
+//組み合わせ出力？
 // function generateChoise(arr, n) {
 //   var m = arr.length;
 //   if(m < n){

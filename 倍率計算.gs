@@ -2,12 +2,12 @@ function carryOver() {
   var sheet = SpreadsheetApp.getActive().getSheetByName('単試合');
   var sheetData = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
   
-  var memberNum = 6; //人数
-  var gameNum = 48; //全試合数
-  var topMargin = 2;
+  var memberNum = 5; //人数
+  var gameNum = 27; //全試合数
+  var topMargin = 5;
   var indexCol = 2;
   var team1Col = indexCol + 1;
-  var team2Col = team1Col + 1;
+  var team2Col = team1Col + 3;
   var resultCol = team2Col + 1;
   var hitCol = resultCol + (memberNum * 2) + 1;
   var rateCol = hitCol + (memberNum * 2) + 1;
@@ -27,7 +27,7 @@ function carryOver() {
       hitSum += getData(i, hitCol + j);
     }
 
-    if(hitSum == -memberNum){
+    if(Math.abs(hitSum) == memberNum){
       carryFlag = true;
     }
 

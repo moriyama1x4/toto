@@ -1,51 +1,59 @@
 function choiseForecast(string) {
+  // var string = "回答_前半戦"; //テスト用
   var formSheet = SpreadsheetApp.getActive().getSheetByName(string);
   var name = formSheet.getRange(formSheet.getLastRow(), 2).getValue();
   var sheet = SpreadsheetApp.getActive().getSheetByName(string.replace("回答_", ""));
-  var topMargin = 2;
+  var topMargin = 1;
   var leftMargin = 1;
-  var nameCol = leftMargin + 1;
-  var forecastCol = nameCol + 1;
-  var memberNum = 6;
+  var forecastRow = topMargin + 2;
+  var forecastPatternCol = leftMargin + 1
+  var memberNum = 5;
+  var forecastPatternNum = 336; //選択肢の数
   var forecastNum; //一人当たりの予想数
   var forecasts = [];
   
-  //フォームの入力を転記(直接)
+  //フォーム入力取得
   forecasts = formSheet.getRange(formSheet.getLastRow(), 3).getValue().replace(/ /g, "").split(",");
   forecastNum = forecasts.length
   
-  for(var i = 0; i < forecastNum; i++){
-    forecasts[i] = forecasts[i].split("/");
-  }
-  
-  var gameNum = forecasts[0].length;
+  var gameNum = forecasts[0].split("/").length;
+  var forecastCol = forecastPatternCol + gameNum * 2; //予想入力の開始列
+
   
   //シートの大きさがわかったところで取得
-  var sheetData = sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum * memberNum, gameNum + 1).getValues();
-  
+  var sheetData = sheet.getRange(1, 1, topMargin + 1 + forecastPatternNum, leftMargin + gameNum * 2 + memberNum).getValues();
   
   //予想をデータに取り込み
-  var inputNum = 0; //書き込んだ数
-  for(var i = 1; i <= forecastNum * memberNum; i++){
-    if(getData(i, 1) == name){
-      for(var j = 0; j < gameNum; j++){
-        setData(i, (forecastCol - leftMargin) + j, forecasts[inputNum][j]);
+  //まず名前から列特定
+  var targetCol;
+  for(var i = 0; i < memberNum; i++){
+    if(sheetData[1][forecastCol + i - 1] == name){
+      targetCol = forecastCol + i;
+      break;
+    }
+  }
+
+
+  //予想一致とデータ更新
+  for(var i = 0; i < forecastPatternNum; i++){
+    var brankFlag = true;
+    var forecastPattern = sheetData[forecastRow + i -1].slice(forecastPatternCol - 1, forecastPatternCol + gameNum - 1).join("/")
+
+    for(var j = 0; j < forecastNum; j++){
+      if(forecasts[j] == forecastPattern){
+        sheetData[forecastRow + i - 1][targetCol - 1] = "〇";
+        brankFlag = false
+        // console.log(forecastPattern);
       }
-      
-      inputNum++;
-      if(inputNum >= forecastNum){
-        break;
-      }
+    }
+    if(brankFlag){
+      sheetData[forecastRow + i - 1][targetCol - 1] = "";
     }
   }
   
-  //予想だけ抽出
-//  for(var i = 0; i < forecastNum * memberNum; i++){
-//    sheetData[i].splice(0, forecastCol - 1)
-//  }
-  
   //書き込み
-  sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum * memberNum, gameNum + 1).setValues(sheetData);
+  var forecastSheetData = sheetData.slice(forecastRow - 1, forecastRow + forecastPatternNum).map(row => row.slice(forecastCol - 1, forecastCol + memberNum));
+  sheet.getRange(forecastRow, forecastCol, forecastPatternNum, memberNum).setValues(forecastSheetData);
   
   
   function getData(y,x){
