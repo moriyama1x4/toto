@@ -144,7 +144,7 @@ function optimalForecast(string){
   sheet.getRange(topMargin + 1, leftMargin + 1, forecastNum, gameNum).setValues(sheet_data);
   
   
-  
+  //このあたりの関数いらん
   function getData(y,x){
     return sheet_data[y-1][x-1];
   }
